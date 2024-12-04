@@ -41,6 +41,31 @@ class UserCreate(UserBase):
     email: EmailStr = Field(..., example="john.doe@example.com")
     password: str = Field(..., example="Secure*1234")
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+    @validator("username")
+    def validate_username(cls, value):
+        if not value.isalnum():
+            raise ValueError("Username must contain only letters and numbers.")
+        return value
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+    @validator("password")
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters long.")
+        if not any(char.isdigit() for char in value):
+            raise ValueError("Password must contain at least one digit.")
+        if not any(char.isupper() for char in value):
+            raise ValueError("Password must contain at least one uppercase letter.")
+        return value
+
+
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
     nickname: Optional[str] = Field(None, min_length=3, pattern=r'^[\w-]+$', example="john_doe123")

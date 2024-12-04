@@ -189,3 +189,27 @@ async def test_list_users_unauthorized(async_client, user_token):
         headers={"Authorization": f"Bearer {user_token}"}
     )
     assert response.status_code == 403  # Forbidden, as expected for regular user
+
+def test_username_validation(client):
+    response = client.post(
+        "/users/",
+        json={"username": "invalid!user", "password": "Password123"}
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Username must contain only letters and numbers."
+
+def test_password_validation(client):
+    response = client.post(
+        "/users/",
+        json={"username": "validuser", "password": "short"}
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Password must be at least 8 characters long."
+
+    response = client.post(
+        "/users/",
+        json={"username": "validuser", "password": "nouppercase1"}
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Password must contain at least one uppercase letter."
+
